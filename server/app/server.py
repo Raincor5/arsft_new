@@ -202,7 +202,9 @@ class TacticalServer:
             self.handle_connection,
             self.host,
             self.port,
-            max_size=MAX_MESSAGE_SIZE
+            max_size=MAX_MESSAGE_SIZE,
+            ping_interval=None,  # Disable automatic ping
+            ping_timeout=None
         ):
             logger.info(f"Server running on ws://{self.host}:{self.port}")
             await asyncio.Future()  # Run forever
@@ -215,29 +217,64 @@ class TacticalServer:
         try:
             logger.info(f"New connection from {websocket.remote_address}")
             
-            async for message in websocket:
-                try:
-                    logger.info(f"Received message: {message}")  # Add debug logging
-                    data = json.loads(message)
-                    msg_type = data.get("type")
-                    logger.info(f"Message type: {msg_type}")  # Add debug logging
-                    
-                    if msg_type == MessageType.AUTH:
+            # Wait for first message (should be auth)
+            try:
+                first_msg = await asyncio.wait_for(websocket.recv(), timeout=10.0)
+                logger.info(f"First message received: {first_msg[:100] if isinstance(first_msg, str) else 'binary'}")
+                
+                # Parse the message
+                data = json.loads(first_msg)
+                msg_type = data.get("type")
+                logger.info(f"First message type: {msg_type}")
+                
+                if msg_type == MessageType.AUTH:
+                    player_id, session_id = await self.handle_auth(websocket, data)
+                elif msg_type == MessageType.PING:
+                    # Handle ping, then wait for auth
+                    await websocket.send(json.dumps({"type": MessageType.PONG}))
+                    auth_msg = await asyncio.wait_for(websocket.recv(), timeout=5.0)
+                    data = json.loads(auth_msg)
+                    if data.get("type") == MessageType.AUTH:
                         player_id, session_id = await self.handle_auth(websocket, data)
-                    elif msg_type == MessageType.PING:
-                        await websocket.send(json.dumps({"type": MessageType.PONG}))
-                    elif player_id and session_id:
-                        await self.handle_message(player_id, session_id, data)
-                    else:
-                        await self.send_error(websocket, "Not authenticated")
-                        
-                except json.JSONDecodeError:
-                    logger.error(f"Invalid JSON received: {message}")  # Add debug logging
-                    await self.send_error(websocket, "Invalid JSON")
-                except Exception as e:
-                    logger.error(f"Error handling message: {e}")
-                    await self.send_error(websocket, str(e))
+                else:
+                    await self.send_error(websocket, "Expected auth message")
+                    return
                     
+            except asyncio.TimeoutError:
+                logger.error("Timeout waiting for authentication")
+                await self.send_error(websocket, "Authentication timeout")
+                return
+            except json.JSONDecodeError as e:
+                logger.error(f"Invalid JSON in first message: {e}")
+                await self.send_error(websocket, "Invalid JSON")
+                return
+            
+            # Continue handling messages if auth successful
+            if player_id and session_id:
+                async for message in websocket:
+                    try:
+                        if isinstance(message, bytes):
+                            logger.info("Received binary message, skipping")
+                            continue
+                            
+                        logger.info(f"Received message: {message[:200]}...")
+                        data = json.loads(message)
+                        msg_type = data.get("type")
+                        logger.info(f"Message type: {msg_type}")
+                        
+                        if msg_type == MessageType.PING:
+                            await websocket.send(json.dumps({"type": MessageType.PONG}))
+                        else:
+                            await self.handle_message(player_id, session_id, data)
+                            
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Invalid JSON received: {e}")
+                        await self.send_error(websocket, "Invalid JSON")
+                    except Exception as e:
+                        logger.error(f"Error handling message: {e}")
+                        logger.error(f"Traceback: {traceback.format_exc()}")
+                        await self.send_error(websocket, str(e))
+                        
         except websockets.exceptions.ConnectionClosed:
             logger.info(f"Connection closed for player {player_id}")
         except Exception as e:
@@ -250,6 +287,8 @@ class TacticalServer:
     async def handle_auth(self, websocket: WebSocketServerProtocol, 
                          data: Dict[str, Any]) -> Tuple[Optional[str], Optional[str]]:
         """Handle authentication request"""
+        logger.info(f"Processing auth request: {data}")
+        
         callsign = data.get("callsign", "").strip()
         session_id = data.get("session_id", "").strip()
         is_host = data.get("is_host", False)
@@ -283,9 +322,11 @@ class TacticalServer:
             logger.info(f"Created new session: {session_id}")
         else:
             if session_id not in self.sessions:
+                logger.error(f"Session not found: {session_id}")
                 await self.send_error(websocket, "Session not found")
                 return None, None
             session = self.sessions[session_id]
+            logger.info(f"Joining existing session: {session_id}")
         
         # Create player
         player_id = str(uuid.uuid4())
@@ -305,6 +346,7 @@ class TacticalServer:
             # Assign to team with fewer players
             player.team_id = min(team_counts, key=team_counts.get)
             session.teams[player.team_id].players.add(player_id)
+            logger.info(f"Assigned player to team: {player.team_id}")
         
         # Set host if first player
         if is_host:
@@ -587,6 +629,7 @@ class TacticalServer:
             "session_state": state
         }
         
+        logger.info(f"Sending auth response to {player.callsign}")
         await player.websocket.send(json.dumps(response))
     
     async def send_error(self, websocket: WebSocketServerProtocol, error: str):
@@ -622,7 +665,9 @@ class TacticalServer:
                 "player_id": player.player_id,
                 "callsign": player.callsign,
                 "team_id": player.team_id,
-                "connection_status": player.connection_status
+                "connection_status": player.connection_status,
+                "last_active": player.last_active,
+                "device_info": player.device_info
             }
             
             # Include position only for teammates
@@ -640,7 +685,11 @@ class TacticalServer:
         visible_messages = []
         for message in session.messages[-50:]:
             if message.visibility == Visibility.ALL or message.team_id == team_id:
-                visible_messages.append(asdict(message))
+                msg_data = asdict(message)
+                # Convert location if present
+                if message.location:
+                    msg_data["location"] = asdict(message.location)
+                visible_messages.append(msg_data)
         state["messages"] = visible_messages
         
         return state

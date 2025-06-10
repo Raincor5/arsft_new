@@ -7,6 +7,11 @@ import SwiftUI
 @_exported import struct CoreLocation.CLLocationDistance
 @_exported import struct Foundation.TimeInterval
 
+// MARK: - Notifications
+extension Notification.Name {
+    static let webSocketDidConnect = Notification.Name("webSocketDidConnect")
+}
+
 enum ConnectionState {
     case disconnected
     case connecting
@@ -34,16 +39,27 @@ class WebSocketService: NSObject, ObservableObject {
         super.init()
         let configuration = URLSessionConfiguration.default
         configuration.waitsForConnectivity = true
-        session = URLSession(configuration: configuration)
+        session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
     }
     
+
     func connect(to url: URL) {
         print("WebSocketService: Attempting to connect to \(url.absoluteString)")
+        
+        // Ensure we're not already connected or connecting
+        guard connectionState == .disconnected else {
+            print("WebSocketService: Already connected or connecting.")
+            return
+        }
+
         connectionState = .connecting
+        lastError = nil
+        
         webSocket = session?.webSocketTask(with: url)
         webSocket?.resume()
+        
+        // Start receiving messages
         receiveMessage()
-        // Don't start ping timer until we're fully authenticated
     }
     
     func disconnect() {
@@ -77,13 +93,16 @@ class WebSocketService: NSObject, ObservableObject {
     }
     
     func sendRaw(_ data: Data) {
-        guard connectionState == .connected,
-              let webSocket = webSocket else {
+        guard let webSocket = webSocket else {
+            print("Cannot send message: WebSocket is not initialized.")
+            return
+        }
+        guard connectionState == .connected else {
             print("Cannot send message: WebSocket not connected (state: \(connectionState))")
             return
         }
         
-        print("WebSocketService: Sending raw data: \(String(data: data, encoding: .utf8) ?? "")")
+        print("WebSocketService: Sending raw data: \(String(data: data, encoding: .utf8) ?? "Non-UTF8 data")")
         let message = URLSessionWebSocketTask.Message.data(data)
         webSocket.send(message) { error in
             if let error = error {
@@ -96,6 +115,7 @@ class WebSocketService: NSObject, ObservableObject {
     
     func startPingTimer() {
         print("WebSocketService: Starting ping timer")
+        stopPingTimer() // Ensure no multiple timers are running
         pingTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
             self?.sendPing()
         }
@@ -110,11 +130,10 @@ class WebSocketService: NSObject, ObservableObject {
         let pingMessage = ["type": "ping"]
         if let data = try? JSONSerialization.data(withJSONObject: pingMessage) {
             print("WebSocketService: Sending ping")
-            webSocket?.send(URLSessionWebSocketTask.Message.data(data)) { error in
+            webSocket?.send(URLSessionWebSocketTask.Message.data(data)) { [weak self] error in
                 if let error = error {
                     print("Ping error: \(error)")
-                    self.connectionState = .disconnected
-                    self.attemptReconnection()
+                    self?.handleError(error)
                 }
             }
         }
@@ -141,6 +160,7 @@ class WebSocketService: NSObject, ObservableObject {
     
     private func reconnect() {
         guard let url = webSocket?.originalRequest?.url else { return }
+        disconnect() // Cleanly disconnect before reconnecting
         connect(to: url)
     }
     
@@ -151,11 +171,12 @@ class WebSocketService: NSObject, ObservableObject {
                 switch message {
                 case .string(let text):
                     print("Received text: \(text)")
-                    if text == "pong" {
-                        self?.connectionState = .connected
+                    // The server sends JSON strings, so we should decode them
+                    if let data = text.data(using: .utf8) {
+                        self?.messageSubject.send(data)
                     }
                 case .data(let data):
-                    print("Received data: \(data)")
+                    print("Received data: \(data.count) bytes")
                     self?.messageSubject.send(data)
                 @unknown default:
                     break
@@ -163,8 +184,7 @@ class WebSocketService: NSObject, ObservableObject {
                 self?.receiveMessage()
             case .failure(let error):
                 print("WebSocket receive error: \(error)")
-                self?.connectionState = .disconnected
-                self?.attemptReconnection()
+                self?.handleError(error)
             }
         }
     }
@@ -183,24 +203,23 @@ class WebSocketService: NSObject, ObservableObject {
 extension WebSocketService: URLSessionWebSocketDelegate {
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
         print("WebSocketService: Connection established")
-        connectionState = .connected
-        reconnectAttempts = 0
-        
-        // Notify that we're ready to send messages
-        NotificationCenter.default.post(name: .webSocketDidConnect, object: nil)
+        DispatchQueue.main.async { [weak self] in
+            self?.connectionState = .connected
+            self?.reconnectAttempts = 0
+            // Notify that we're ready to send messages
+            NotificationCenter.default.post(name: .webSocketDidConnect, object: nil)
+        }
     }
     
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
         print("WebSocketService: Connection closed with code: \(closeCode)")
-        connectionState = .disconnected
-        
-        if closeCode != .normalClosure && closeCode != .goingAway {
-            attemptReconnection()
+        DispatchQueue.main.async { [weak self] in
+            self?.connectionState = .disconnected
+            
+            // Don't try to reconnect on normal closure
+            if closeCode != .normalClosure && closeCode != .goingAway {
+                self?.attemptReconnection()
+            }
         }
     }
-}
-
-// MARK: - Notifications
-extension Notification.Name {
-    static let webSocketDidConnect = Notification.Name("webSocketDidConnect")
 }

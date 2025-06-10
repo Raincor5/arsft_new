@@ -136,10 +136,12 @@ class StateManager: ObservableObject {
     
     // MARK: - Message Handling
     
-    private func handleWebSocketMessage(_ data: Data) {
+private func handleWebSocketMessage(_ data: Data) {
         do {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                let type = json["type"] as? String {
+                
+                print("StateManager: Received message type: \(type)")
                 
                 switch type {
                 case "auth_response":
@@ -152,12 +154,15 @@ class StateManager: ObservableObject {
                     if let error = json["error"] as? String {
                         print("Server error: \(error)")
                     }
+                case "pong":
+                    print("StateManager: Received pong")
                 default:
-                    break
+                    print("StateManager: Unknown message type: \(type)")
                 }
             }
         } catch {
             print("Failed to parse WebSocket message: \(error)")
+            print("Raw data: \(String(data: data, encoding: .utf8) ?? "binary")")
         }
     }
     
