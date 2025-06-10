@@ -1,0 +1,29 @@
+module TacticalMap {
+    umbrella header "TacticalMap.h"
+    export *
+    module * { export * }
+    
+    module Models {
+        export *
+    }
+    
+    module Views {
+        export *
+    }
+    
+    module Components {
+        export *
+    }
+    
+    module Services {
+        export *
+    }
+    
+    module ViewModels {
+        export *
+    }
+    
+    module Utils {
+        export *
+    }
+} 

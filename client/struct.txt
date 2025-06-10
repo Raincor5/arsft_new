@@ -1,0 +1,37 @@
+Create the empty files following this structure:
+/*
+TacticalAirsoftMap/
+├── App/
+│   ├── TacticalAirsoftMapApp.swift
+│   └── Info.plist
+├── Models/
+│   ├── Player.swift
+│   ├── Team.swift
+│   ├── Session.swift
+│   ├── Message.swift
+│   ├── Marker.swift
+│   └── NetworkModels.swift
+├── ViewModels/
+│   ├── ConnectionViewModel.swift
+│   ├── MapViewModel.swift
+│   ├── ChatViewModel.swift
+│   └── TeamViewModel.swift
+├── Views/
+│   ├── ConnectionView.swift
+│   ├── MapView.swift
+│   ├── ChatView.swift
+│   ├── TeamView.swift
+│   └── Components/
+│       ├── CompassView.swift
+│       ├── PlayerAnnotationView.swift
+│       └── TacticalButton.swift
+├── Services/
+│   ├── WebSocketService.swift
+│   ├── LocationService.swift
+│   ├── QRCodeService.swift
+│   └── StateManager.swift
+└── Utils/
+    ├── Constants.swift
+    └── Extensions.swift
+*/
+

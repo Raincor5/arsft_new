@@ -1,0 +1,15 @@
+# systemd service file: tactical-airsoft.service
+[Unit]
+Description=Tactical Airsoft Map Server
+After=network.target
+
+[Service]
+Type=simple
+User=tactical
+WorkingDirectory=/opt/tactical-airsoft
+ExecStart=/usr/bin/python3 /opt/tactical-airsoft/server.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

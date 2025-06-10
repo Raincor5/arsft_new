@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<true/>
+	</dict>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchScreenBackground</string>
+		<key>UIImageName</key>
+		<string>LaunchScreenIcon</string>
+	</dict>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>armv7</string>
+		<string>location-services</string>
+		<string>gps</string>
+		<string>magnetometer</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~iphone</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	
+	<!-- Location Services -->
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Tactical Airsoft Map needs your location to track your position on the battlefield and share it with your team.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Tactical Airsoft Map needs your location to show your position on the map.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Tactical Airsoft Map needs continuous location access to track your position during games, even when the app is in the background.</string>
+	
+	<!-- Camera for QR Scanner -->
+	<key>NSCameraUsageDescription</key>
+	<string>Tactical Airsoft Map needs camera access to scan QR codes for joining game sessions.</string>
+	
+	<!-- Background Modes -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+	
+	<!-- URL Schemes -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>tacticalairsoft</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.tactical.airsoft</string>
+		</dict>
+	</array>
+	
+	<!-- Network Configuration -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	
+	<!-- Privacy - Bluetooth -->
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Tactical Airsoft Map uses Bluetooth to connect with nearby devices for local game sessions.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Tactical Airsoft Map uses Bluetooth to connect with nearby devices for local game sessions.</string>
+	
+	<!-- Privacy - Microphone -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Tactical Airsoft Map needs microphone access for voice chat during games.</string>
+	
+	<!-- Privacy - Photo Library -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Tactical Airsoft Map needs access to your photo library to save and share game screenshots.</string>
+	
+	<!-- Privacy - Photo Library Additions -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Tactical Airsoft Map needs permission to save game screenshots to your photo library.</string>
+</dict>
+</plist>

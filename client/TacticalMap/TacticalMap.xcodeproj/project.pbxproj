@@ -1,0 +1,511 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CF5001B92DF78F9A007E9EC6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF5001BB2DF78F9A007E9EC6 /* UIKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CF50FDF82DF76564007E9EC6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CF50FDDB2DF76562007E9EC6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CF50FDE22DF76562007E9EC6;
+			remoteInfo = TacticalMap;
+		};
+		CF50FE022DF76564007E9EC6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CF50FDDB2DF76562007E9EC6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CF50FDE22DF76562007E9EC6;
+			remoteInfo = TacticalMap;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		CF5001BB2DF78F9A007E9EC6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		CF50FDE32DF76562007E9EC6 /* TacticalMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TacticalMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CF50FDF72DF76564007E9EC6 /* TacticalMapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TacticalMapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CF50FE012DF76564007E9EC6 /* TacticalMapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TacticalMapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CF5001B62DF78F9A007E9EC6 /* Exceptions for "TacticalMap" folder in "TacticalMap" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				App/Info.plist,
+			);
+			target = CF50FDE22DF76562007E9EC6 /* TacticalMap */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		CF50FDE52DF76562007E9EC6 /* TacticalMap */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CF5001B62DF78F9A007E9EC6 /* Exceptions for "TacticalMap" folder in "TacticalMap" target */,
+			);
+			path = TacticalMap;
+			sourceTree = "<group>";
+		};
+		CF50FDFA2DF76564007E9EC6 /* TacticalMapTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TacticalMapTests;
+			sourceTree = "<group>";
+		};
+		CF50FE042DF76564007E9EC6 /* TacticalMapUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TacticalMapUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CF50FDE02DF76562007E9EC6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CF5001B92DF78F9A007E9EC6 /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF50FDF42DF76564007E9EC6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF50FDFE2DF76564007E9EC6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CF5001BA2DF78F9A007E9EC6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CF5001BB2DF78F9A007E9EC6 /* UIKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CF50FDDA2DF76562007E9EC6 = {
+			isa = PBXGroup;
+			children = (
+				CF50FDE52DF76562007E9EC6 /* TacticalMap */,
+				CF50FDFA2DF76564007E9EC6 /* TacticalMapTests */,
+				CF50FE042DF76564007E9EC6 /* TacticalMapUITests */,
+				CF50FDE42DF76562007E9EC6 /* Products */,
+				CF5001BA2DF78F9A007E9EC6 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		CF50FDE42DF76562007E9EC6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CF50FDE32DF76562007E9EC6 /* TacticalMap.app */,
+				CF50FDF72DF76564007E9EC6 /* TacticalMapTests.xctest */,
+				CF50FE012DF76564007E9EC6 /* TacticalMapUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CF50FDE22DF76562007E9EC6 /* TacticalMap */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CF50FE0A2DF76564007E9EC6 /* Build configuration list for PBXNativeTarget "TacticalMap" */;
+			buildPhases = (
+				CF50FDDF2DF76562007E9EC6 /* Sources */,
+				CF50FDE02DF76562007E9EC6 /* Frameworks */,
+				CF50FDE12DF76562007E9EC6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CF50FDE52DF76562007E9EC6 /* TacticalMap */,
+			);
+			name = TacticalMap;
+			packageProductDependencies = (
+			);
+			productName = TacticalMap;
+			productReference = CF50FDE32DF76562007E9EC6 /* TacticalMap.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CF50FDF62DF76564007E9EC6 /* TacticalMapTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CF50FE0F2DF76564007E9EC6 /* Build configuration list for PBXNativeTarget "TacticalMapTests" */;
+			buildPhases = (
+				CF50FDF32DF76564007E9EC6 /* Sources */,
+				CF50FDF42DF76564007E9EC6 /* Frameworks */,
+				CF50FDF52DF76564007E9EC6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CF50FDF92DF76564007E9EC6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CF50FDFA2DF76564007E9EC6 /* TacticalMapTests */,
+			);
+			name = TacticalMapTests;
+			packageProductDependencies = (
+			);
+			productName = TacticalMapTests;
+			productReference = CF50FDF72DF76564007E9EC6 /* TacticalMapTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CF50FE002DF76564007E9EC6 /* TacticalMapUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CF50FE122DF76564007E9EC6 /* Build configuration list for PBXNativeTarget "TacticalMapUITests" */;
+			buildPhases = (
+				CF50FDFD2DF76564007E9EC6 /* Sources */,
+				CF50FDFE2DF76564007E9EC6 /* Frameworks */,
+				CF50FDFF2DF76564007E9EC6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CF50FE032DF76564007E9EC6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CF50FE042DF76564007E9EC6 /* TacticalMapUITests */,
+			);
+			name = TacticalMapUITests;
+			packageProductDependencies = (
+			);
+			productName = TacticalMapUITests;
+			productReference = CF50FE012DF76564007E9EC6 /* TacticalMapUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CF50FDDB2DF76562007E9EC6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					CF50FDE22DF76562007E9EC6 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					CF50FDF62DF76564007E9EC6 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = CF50FDE22DF76562007E9EC6;
+					};
+					CF50FE002DF76564007E9EC6 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = CF50FDE22DF76562007E9EC6;
+					};
+				};
+			};
+			buildConfigurationList = CF50FDDE2DF76562007E9EC6 /* Build configuration list for PBXProject "TacticalMap" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CF50FDDA2DF76562007E9EC6;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = CF50FDE42DF76562007E9EC6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CF50FDE22DF76562007E9EC6 /* TacticalMap */,
+				CF50FDF62DF76564007E9EC6 /* TacticalMapTests */,
+				CF50FE002DF76564007E9EC6 /* TacticalMapUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CF50FDE12DF76562007E9EC6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF50FDF52DF76564007E9EC6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF50FDFF2DF76564007E9EC6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CF50FDDF2DF76562007E9EC6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF50FDF32DF76564007E9EC6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF50FDFD2DF76564007E9EC6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CF50FDF92DF76564007E9EC6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CF50FDE22DF76562007E9EC6 /* TacticalMap */;
+			targetProxy = CF50FDF82DF76564007E9EC6 /* PBXContainerItemProxy */;
+		};
+		CF50FE032DF76564007E9EC6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CF50FDE22DF76562007E9EC6 /* TacticalMap */;
+			targetProxy = CF50FE022DF76564007E9EC6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		CF50051A2DF7990C007E9EC6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = TacticalMap;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CF50051B2DF7990C007E9EC6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				PRODUCT_NAME = TacticalMap;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		CF50FE0D2DF76564007E9EC6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TacticalMap/TacticalMap.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 57RFZBR94U;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TacticalMap/App/Info.plist;
+				INFOPLIST_OUTPUT_FORMAT = binary;
+				INFOPLIST_PREPROCESS = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raincor.TacticalMap;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_MODULE_NAME = TacticalMap;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Debug;
+		};
+		CF50FE0E2DF76564007E9EC6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TacticalMap/TacticalMap.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 57RFZBR94U;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TacticalMap/App/Info.plist;
+				INFOPLIST_OUTPUT_FORMAT = binary;
+				INFOPLIST_PREPROCESS = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raincor.TacticalMap;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_MODULE_NAME = TacticalMap;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CF50FE102DF76564007E9EC6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 57RFZBR94U;
+				GENERATE_INFOPLIST_FILE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raincor.TacticalMapTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TacticalMap.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TacticalMap";
+			};
+			name = Debug;
+		};
+		CF50FE112DF76564007E9EC6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 57RFZBR94U;
+				GENERATE_INFOPLIST_FILE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raincor.TacticalMapTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TacticalMap.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TacticalMap";
+			};
+			name = Release;
+		};
+		CF50FE132DF76564007E9EC6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 57RFZBR94U;
+				GENERATE_INFOPLIST_FILE = NO;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raincor.TacticalMapUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TacticalMap;
+			};
+			name = Debug;
+		};
+		CF50FE142DF76564007E9EC6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 57RFZBR94U;
+				GENERATE_INFOPLIST_FILE = NO;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raincor.TacticalMapUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TacticalMap;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CF50FDDE2DF76562007E9EC6 /* Build configuration list for PBXProject "TacticalMap" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CF50FE0D2DF76564007E9EC6 /* Debug */,
+				CF50FE0E2DF76564007E9EC6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CF50FE0A2DF76564007E9EC6 /* Build configuration list for PBXNativeTarget "TacticalMap" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CF50051A2DF7990C007E9EC6 /* Debug */,
+				CF50051B2DF7990C007E9EC6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CF50FE0F2DF76564007E9EC6 /* Build configuration list for PBXNativeTarget "TacticalMapTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CF50FE102DF76564007E9EC6 /* Debug */,
+				CF50FE112DF76564007E9EC6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CF50FE122DF76564007E9EC6 /* Build configuration list for PBXNativeTarget "TacticalMapUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CF50FE132DF76564007E9EC6 /* Debug */,
+				CF50FE142DF76564007E9EC6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CF50FDDB2DF76562007E9EC6 /* Project object */;
+}
