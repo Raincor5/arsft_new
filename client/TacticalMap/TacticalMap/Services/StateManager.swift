@@ -26,9 +26,7 @@ class StateManager: ObservableObject {
     // Services
     private let webSocketService = WebSocketService.shared
     private let locationService = LocationService.shared
-    
     private var cancellables = Set<AnyCancellable>()
-    var extensionCancellables = Set<AnyCancellable>()
     
     init() {
         setupSubscriptions()
@@ -37,7 +35,7 @@ class StateManager: ObservableObject {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleWebSocketConnection),
-            name: .webSocketDidConnect,
+            name: Notification.Name("webSocketDidConnect"),
             object: nil
         )
     }
@@ -63,14 +61,14 @@ class StateManager: ObservableObject {
         // Location updates
         locationService.$currentLocation
             .compactMap { $0 }
-            .filter { [weak self] location in
+            .filter { [weak self] (location: CLLocation) in
                 self?.locationService.shouldSendUpdate(for: location) ?? false
             }
             .sink { [weak self] location in
                 self?.sendPositionUpdate(location)
             }
             .store(in: &cancellables)
-            
+        
         // Connection state
         webSocketService.$connectionState
             .map { $0 == .connected }
@@ -79,19 +77,18 @@ class StateManager: ObservableObject {
     }
     
     // MARK: - Connection Management
-    
     func connect(to url: URL, sessionId: String?, isHost: Bool, callsign: String) {
         print("StateManager: Connecting to \(url.absoluteString)")
         self.serverURL = url
         self.isHost = isHost
         self.callsign = callsign
+        
         if let sessionId = sessionId {
             self.sessionId = sessionId
         }
         
         // Clear any existing state
         clearState()
-        
         webSocketService.connect(to: url)
     }
     
@@ -104,9 +101,10 @@ class StateManager: ObservableObject {
     
     private func authenticate(callsign: String) {
         print("StateManager: Authenticating with callsign: \(callsign)")
+        
         let deviceInfo = Player.DeviceInfo(
-            deviceType: UIDevice.current.model,
-            osVersion: UIDevice.current.systemVersion,
+            deviceType: ProcessInfo.processInfo.hostName,
+            osVersion: ProcessInfo.processInfo.operatingSystemVersionString,
             appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         )
         
@@ -135,160 +133,138 @@ class StateManager: ObservableObject {
     }
     
     // MARK: - Message Handling
-    
-private func handleWebSocketMessage(_ data: Data) {
+    private func handleWebSocketMessage(_ data: Data) {
+        // First, try to decode a generic message to get its type
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        
         do {
-            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let type = json["type"] as? String {
-                
-                print("StateManager: Received message type: \(type)")
-                
-                switch type {
-                case "auth_response":
-                    handleAuthResponse(json)
-                case "state_delta":
-                    if let deltaData = json["delta"] as? [String: Any] {
-                        handleStateDelta(deltaData)
-                    }
-                case "error":
-                    if let error = json["error"] as? String {
-                        print("Server error: \(error)")
-                    }
-                case "pong":
-                    print("StateManager: Received pong")
-                default:
-                    print("StateManager: Unknown message type: \(type)")
+            let genericMessage = try decoder.decode(GenericMessage.self, from: data)
+            print("StateManager: Received message type: \(genericMessage.type.rawValue)")
+            
+            switch genericMessage.type {
+            case .authResponse:
+                if let authResponse = try? decoder.decode(AuthResponse.self, from: data) {
+                    handleAuthResponse(authResponse)
+                } else {
+                    print("StateManager: Failed to decode AuthResponse")
                 }
+                
+            case .stateDelta:
+                if let deltaMessage = try? decoder.decode(StateDeltaMessage.self, from: data) {
+                    handleStateDelta(deltaMessage.delta)
+                } else {
+                    print("StateManager: Failed to decode StateDelta")
+                }
+                
+            case .error:
+                if let errorMessage = try? decoder.decode(ErrorMessage.self, from: data) {
+                    print("Server error: \(errorMessage.error)")
+                }
+                
+            case .pong:
+                print("StateManager: Received pong")
+                
+            default:
+                print("StateManager: Handling for message type '\(genericMessage.type.rawValue)' not implemented.")
             }
         } catch {
-            print("Failed to parse WebSocket message: \(error)")
+            print("Failed to decode WebSocket message: \(error)")
             print("Raw data: \(String(data: data, encoding: .utf8) ?? "binary")")
         }
     }
     
-    private func handleAuthResponse(_ data: [String: Any]) {
-        print("StateManager: Received auth response: \(data)")
-        guard let success = data["success"] as? Bool, success,
-              let playerId = data["player_id"] as? String,
-              let teamId = data["team_id"] as? String,
-              let sessionState = data["session_state"] as? [String: Any] else {
-            print("StateManager: Authentication failed - missing required fields")
+    private func handleAuthResponse(_ response: AuthResponse) {
+        print("StateManager: Handling AuthResponse")
+        
+        guard response.success else {
+            print("StateManager: Authentication failed: \(response.error ?? "Unknown error")")
             return
         }
         
-        print("StateManager: Parsing session state")
-        // Parse session state
-        if let sessionData = try? JSONSerialization.data(withJSONObject: sessionState),
-           let session = try? JSONDecoder().decode(Session.self, from: sessionData) {
-            print("StateManager: Session parsed successfully")
-            self.session = session
-            self.sessionId = session.id
-            
-            // Set current player and team
-            currentPlayer = session.players[playerId]
-            currentTeam = session.teams[teamId]
-            
-            // Update local state
-            players = session.players
-            teams = session.teams
-            markers = session.markers
-            messages = session.messages
-            
-            // Start location tracking
-            locationService.startTracking()
-            
-            // Start ping timer after successful authentication
-            webSocketService.startPingTimer()
-            
-            print("StateManager: Authentication complete - session established")
-        } else {
-            print("StateManager: Failed to parse session state")
-        }
+        let session = response.sessionState
+        self.session = session
+        self.sessionId = session.id
+        
+        // Set current player and team
+        self.currentPlayer = session.players[response.playerId]
+        self.currentTeam = session.teams[response.teamId]
+        
+        // Update local state dictionaries
+        self.players = session.players
+        self.teams = session.teams
+        self.markers = session.markers
+        self.messages = session.messages
+        
+        // Start location tracking and ping timer
+        locationService.startTracking()
+        webSocketService.startPingTimer()
+        
+        print("StateManager: Authentication complete - session established for player \(response.playerId)")
     }
     
-    private func handleStateDelta(_ deltaData: [String: Any]) {
-        guard let changes = deltaData["changes"] as? [[String: Any]] else { return }
-        
-        for change in changes {
-            guard let changeType = change["type"] as? String,
-                  let entityType = change["entity_type"] as? String,
-                  let entityId = change["entity_id"] as? String,
-                  let data = change["data"] as? [String: Any] else { continue }
-            
-            switch (entityType, changeType) {
-            case ("player", "add"), ("player", "update"):
-                updatePlayer(entityId, with: data)
-            case ("player", "remove"):
-                players.removeValue(forKey: entityId)
+    private func handleStateDelta(_ delta: StateDelta) {
+        // Apply changes to the local state
+        for change in delta.changes {
+            switch (change.entityType, change.type) {
+            case (.player, .add), (.player, .update):
+                if let playerData = try? JSONEncoder().encode(change.data),
+                   let player = try? JSONDecoder().decode(Player.self, from: playerData) {
+                    players[change.entityId] = player
+                    
+                    // Update current player if it's them
+                    if player.id == currentPlayer?.id {
+                        currentPlayer = player
+                    }
+                }
                 
-            case ("team", "update"):
-                updateTeam(entityId, with: data)
+            case (.player, .remove):
+                players.removeValue(forKey: change.entityId)
                 
-            case ("marker", "add"), ("marker", "update"):
-                updateMarker(entityId, with: data)
-            case ("marker", "remove"):
-                markers.removeValue(forKey: entityId)
+            case (.team, .update):
+                if let teamData = try? JSONEncoder().encode(change.data),
+                   let team = try? JSONDecoder().decode(Team.self, from: teamData) {
+                    teams[change.entityId] = team
+                    if team.id == currentTeam?.id {
+                        currentTeam = team
+                    }
+                }
                 
-            case ("message", "add"):
-                if let messageData = try? JSONSerialization.data(withJSONObject: data),
+            case (.marker, .add), (.marker, .update):
+                if let markerData = try? JSONEncoder().encode(change.data),
+                   let marker = try? JSONDecoder().decode(Marker.self, from: markerData) {
+                    markers[change.entityId] = marker
+                }
+                
+            case (.marker, .remove):
+                markers.removeValue(forKey: change.entityId)
+                
+            case (.message, .add):
+                if let messageData = try? JSONEncoder().encode(change.data),
                    let message = try? JSONDecoder().decode(Message.self, from: messageData) {
                     messages.append(message)
-                    // Keep only last 100 messages
                     if messages.count > 100 {
                         messages = Array(messages.suffix(100))
                     }
                 }
                 
             default:
-                break
+                print("Unhandled delta change: \(change.entityType) \(change.type)")
             }
         }
-    }
-    
-    private func updatePlayer(_ playerId: String, with data: [String: Any]) {
-        if var player = players[playerId] {
-            // Update existing player
-            if let positionData = data["position"] as? [String: Any],
-               let positionJSON = try? JSONSerialization.data(withJSONObject: positionData),
-               let position = try? JSONDecoder().decode(Position.self, from: positionJSON) {
-                player.position = position
-            }
-            
-            if let status = data["connection_status"] as? String {
-                player.connectionStatus = Player.ConnectionStatus(rawValue: status) ?? .disconnected
-            }
-            
-            players[playerId] = player
-        } else if let playerData = try? JSONSerialization.data(withJSONObject: data),
-                  let player = try? JSONDecoder().decode(Player.self, from: playerData) {
-            // Add new player
-            players[playerId] = player
-        }
-    }
-    
-    private func updateTeam(_ teamId: String, with data: [String: Any]) {
-        if var team = teams[teamId] {
-            if let playerIds = data["players"] as? [String] {
-                team.players = Set(playerIds)
-            }
-            teams[teamId] = team
-        }
-    }
-    
-    private func updateMarker(_ markerId: String, with data: [String: Any]) {
-        if let markerData = try? JSONSerialization.data(withJSONObject: data),
-           let marker = try? JSONDecoder().decode(Marker.self, from: markerData) {
-            markers[markerId] = marker
+        
+        // Update sequence number
+        if var session = self.session {
+            session.sequenceNumber = delta.sequenceNumber
+            self.session = session
         }
     }
     
     // MARK: - Outgoing Messages
-    
     func sendPositionUpdate(_ location: CLLocation) {
         guard let playerId = currentPlayer?.id else { return }
         
         let heading = locationService.heading?.trueHeading ?? 0
-        
         let update: [String: Any] = [
             "type": "position_update",
             "player_id": playerId,
@@ -305,7 +281,7 @@ private func handleWebSocketMessage(_ data: Data) {
         }
     }
     
-    func sendChatMessage(_ content: String, visibility: Message.Visibility = .team) {
+    func sendChatMessage(_ content: String, visibility: Visibility = .team) {
         let message: [String: Any] = [
             "type": "chat",
             "content": content,
@@ -334,7 +310,7 @@ private func handleWebSocketMessage(_ data: Data) {
         }
     }
     
-    func createMarker(type: Marker.MarkerType, label: String, description: String?, visibility: Message.Visibility = .team) {
+    func createMarker(type: MarkerType, label: String, description: String?, visibility: Visibility = .team) {
         guard let location = locationService.currentLocation else { return }
         
         let markerData: [String: Any] = [
@@ -374,7 +350,6 @@ private func handleWebSocketMessage(_ data: Data) {
     }
     
     // MARK: - Team Management (Host only)
-    
     func assignPlayerToTeam(playerId: String, teamId: String) {
         guard isHost else { return }
         
@@ -391,7 +366,6 @@ private func handleWebSocketMessage(_ data: Data) {
     }
     
     // MARK: - Utility
-    
     private func clearState() {
         session = nil
         currentPlayer = nil
@@ -407,9 +381,12 @@ private func handleWebSocketMessage(_ data: Data) {
         return team.players.compactMap { players[$0] }
     }
     
+    func getAllPlayers() -> [Player] {
+        return Array(players.values)
+    }
+    
     func getVisibleMarkers() -> [Marker] {
         guard let currentTeamId = currentTeam?.id else { return [] }
-        
         return markers.values.filter { marker in
             marker.visibility == .all || marker.teamId == currentTeamId
         }
@@ -417,9 +394,21 @@ private func handleWebSocketMessage(_ data: Data) {
     
     func getVisibleMessages() -> [Message] {
         guard let currentTeamId = currentTeam?.id else { return [] }
-        
         return messages.filter { message in
             message.visibility == .all || message.teamId == currentTeamId
         }
     }
+}
+
+// MARK: - WebSocket Message Helper Structs
+private struct GenericMessage: Decodable {
+    let type: MessageType
+}
+
+private struct StateDeltaMessage: Decodable {
+    let delta: StateDelta
+}
+
+private struct ErrorMessage: Decodable {
+    let error: String
 }

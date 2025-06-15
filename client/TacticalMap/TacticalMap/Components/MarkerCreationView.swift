@@ -1,5 +1,6 @@
 // MARK: - MarkerCreationView.swift
 import SwiftUI
+import CoreLocation
 
 struct MarkerCreationView: View {
     @EnvironmentObject var stateManager: StateManager
@@ -7,8 +8,8 @@ struct MarkerCreationView: View {
     
     @State private var markerLabel = ""
     @State private var markerDescription = ""
-    @State private var markerType: Marker.MarkerType = .pin
-    @State private var visibility: Message.Visibility = .team
+    @State private var markerType: MarkerType = .waypoint
+    @State private var visibility: Visibility = .team
     
     var body: some View {
         NavigationView {
@@ -36,6 +37,20 @@ struct MarkerCreationView: View {
                             .textFieldStyle(TacticalTextFieldStyle())
                     }
                     
+                    // Marker Type
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("MARKER TYPE")
+                            .font(TacticalFonts.caption)
+                            .foregroundColor(TacticalColors.primary)
+                        
+                        Picker("Marker Type", selection: $markerType) {
+                            ForEach(MarkerType.allCases, id: \.self) { type in
+                                Text(type.rawValue.uppercased()).tag(type)
+                            }
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                    }
+                    
                     // Visibility
                     VStack(alignment: .leading, spacing: 8) {
                         Text("VISIBILITY")
@@ -43,8 +58,8 @@ struct MarkerCreationView: View {
                             .foregroundColor(TacticalColors.primary)
                         
                         Picker("Visibility", selection: $visibility) {
-                            Text("TEAM ONLY").tag(Message.Visibility.team)
-                            Text("ALL TEAMS").tag(Message.Visibility.all)
+                            Text("TEAM ONLY").tag(Visibility.team)
+                            Text("ALL TEAMS").tag(Visibility.all)
                         }
                         .pickerStyle(SegmentedPickerStyle())
                     }

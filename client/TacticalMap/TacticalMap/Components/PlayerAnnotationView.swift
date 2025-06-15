@@ -1,40 +1,55 @@
-
 // MARK: - PlayerAnnotationView.swift
 import SwiftUI
 import MapKit
-
-struct PlayerAnnotation: Identifiable {
-    let id: String
-    let coordinate: CLLocationCoordinate2D
-    let heading: Double
-    let callsign: String
-    let teamColor: Color
-    let isCurrentPlayer: Bool
-}
 
 struct PlayerAnnotationView: View {
     let annotation: PlayerAnnotation
     
     var body: some View {
-        VStack(spacing: 2) {
-            // Direction indicator
-            Image(systemName: "arrowtriangle.up.fill")
-                .foregroundColor(annotation.teamColor)
-                .font(.system(size: annotation.isCurrentPlayer ? 20 : 16))
-                .rotationEffect(.degrees(annotation.heading))
-                .shadow(color: .black, radius: 2)
+        ZStack {
+            // Pulsing effect for current player
+            if annotation.isCurrentPlayer {
+                Circle()
+                    .fill(annotation.team.swiftUIColor.opacity(0.3))
+                    .frame(width: 40, height: 40)
+                    .scaleEffect(1.2)
+                    .opacity(0.5)
+                    .animation(
+                        Animation.easeInOut(duration: 1.5)
+                            .repeatForever(autoreverses: true),
+                        value: UUID()
+                    )
+            }
             
-            // Callsign
-            Text(annotation.callsign)
-                .font(.system(size: 10, weight: .bold))
+            // Player direction indicator
+            ZStack {
+                // Outer arrow
+                Image(systemName: "arrowtriangle.up.fill")
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(annotation.team.swiftUIColor)
+                    .rotationEffect(.degrees(annotation.heading))
+                
+                // Inner arrow (white)
+                Image(systemName: "arrowtriangle.up.fill")
+                    .resizable()
+                    .frame(width: 12, height: 12)
+                    .foregroundColor(.white)
+                    .rotationEffect(.degrees(annotation.heading))
+            }
+            
+            // Enhanced callsign label
+            Text(annotation.player.callsign)
+                .font(.system(size: 12, weight: .bold))
                 .foregroundColor(.white)
-                .padding(.horizontal, 4)
-                .padding(.vertical, 2)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
                 .background(
                     Capsule()
-                        .fill(annotation.teamColor.opacity(0.8))
+                        .fill(annotation.team.swiftUIColor)
+                        .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                 )
-                .shadow(color: .black, radius: 2)
+                .offset(y: -25)
         }
     }
 }

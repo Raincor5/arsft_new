@@ -105,6 +105,7 @@ struct PlayerRow: View {
         case .connected: return TacticalTheme.Colors.primary
         case .disconnected: return TacticalTheme.Colors.warning
         case .inactive: return TacticalTheme.Colors.warning
+        case .connecting: return TacticalTheme.Colors.warning
         }
     }
     

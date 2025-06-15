@@ -1,62 +1,42 @@
 // MARK: - MapViewRepresentable.swift
 import SwiftUI
 import MapKit
+import UIKit
 
 struct MapViewRepresentable: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
-    let mapType: MKMapType
-    let annotations: [PlayerAnnotation]
-    let overlays: [MKOverlay]
+    var mapType: MKMapType
+    var annotations: [PlayerAnnotation]
+    var overlays: [MKOverlay]
     
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
         mapView.delegate = context.coordinator
         mapView.mapType = mapType
-        mapView.showsUserLocation = false // We'll use custom annotation
-        mapView.showsCompass = false // We have custom compass
-        mapView.isRotateEnabled = true
-        mapView.isPitchEnabled = true
-        
-        // Tactical map style
-        mapView.pointOfInterestFilter = .excludingAll
-        
+        mapView.showsUserLocation = true
+        mapView.userTrackingMode = .followWithHeading
         return mapView
     }
     
     func updateUIView(_ mapView: MKMapView, context: Context) {
-        // Update region
-        if !context.coordinator.isUserInteracting {
-            mapView.setRegion(region, animated: true)
-        }
-        
-        // Update map type
         mapView.mapType = mapType
+        mapView.setRegion(region, animated: true)
         
         // Update annotations
-        let currentAnnotationIds = Set(mapView.annotations.compactMap { ($0 as? MKPlayerAnnotation)?.playerAnnotation.id })
-        let newAnnotationIds = Set(annotations.map { $0.id })
+        let existingAnnotations = mapView.annotations.filter { !($0 is MKUserLocation) }
+        mapView.removeAnnotations(existingAnnotations)
         
-        // Remove old annotations
-        let annotationsToRemove = mapView.annotations.filter { annotation in
-            guard let mkAnnotation = annotation as? MKPlayerAnnotation else { return false }
-            return !newAnnotationIds.contains(mkAnnotation.playerAnnotation.id)
+        // Convert PlayerAnnotation to MKPointAnnotation
+        let mkAnnotations = annotations.map { annotation -> MKPointAnnotation in
+            let mkAnnotation = MKPointAnnotation()
+            mkAnnotation.coordinate = annotation.coordinate
+            return mkAnnotation
         }
-        mapView.removeAnnotations(annotationsToRemove)
+        mapView.addAnnotations(mkAnnotations)
         
-        // Add or update annotations
-        for annotation in annotations {
-            if let existingAnnotation = mapView.annotations.first(where: {
-                ($0 as? MKPlayerAnnotation)?.playerAnnotation.id == annotation.id
-            }) as? MKPlayerAnnotation {
-                // Update existing
-                existingAnnotation.coordinate = annotation.coordinate
-                existingAnnotation.playerAnnotation = annotation
-            } else {
-                // Add new
-                let mkAnnotation = MKPlayerAnnotation(playerAnnotation: annotation)
-                mapView.addAnnotation(mkAnnotation)
-            }
-        }
+        // Update overlays
+        mapView.removeOverlays(mapView.overlays)
+        mapView.addOverlays(overlays)
     }
     
     func makeCoordinator() -> Coordinator {
@@ -65,59 +45,62 @@ struct MapViewRepresentable: UIViewRepresentable {
     
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapViewRepresentable
-        var isUserInteracting = false
         
         init(_ parent: MapViewRepresentable) {
             self.parent = parent
         }
         
-        func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
-            isUserInteracting = true
-        }
-        
-        func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-            parent.region = mapView.region
-            isUserInteracting = false
-        }
-        
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-            guard let mkAnnotation = annotation as? MKPlayerAnnotation else { return nil }
+            guard !(annotation is MKUserLocation) else { return nil }
+            
+            // Find the corresponding PlayerAnnotation
+            guard let pointAnnotation = annotation as? MKPointAnnotation,
+                  let playerAnnotation = parent.annotations.first(where: { $0.coordinate.latitude == pointAnnotation.coordinate.latitude && $0.coordinate.longitude == pointAnnotation.coordinate.longitude }) else {
+                return nil
+            }
             
             let identifier = "PlayerAnnotation"
-            let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) ?? MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+            
+            if annotationView == nil {
+                annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                annotationView?.canShowCallout = false
+            }
             
             // Create SwiftUI view
-            let playerView = PlayerAnnotationView(annotation: mkAnnotation.playerAnnotation)
+            let playerView = PlayerAnnotationView(annotation: playerAnnotation)
             let hostingController = UIHostingController(rootView: playerView)
             hostingController.view.backgroundColor = .clear
             
-            // Size the view
-            let size = hostingController.view.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
-            hostingController.view.frame = CGRect(origin: .zero, size: size)
+            // Size the view properly
+            let targetSize = CGSize(width: 80, height: 60)
+            hostingController.view.frame = CGRect(origin: .zero, size: targetSize)
             
-            // Set as annotation view
-            annotationView.addSubview(hostingController.view)
-            annotationView.frame.size = size
-            annotationView.centerOffset = CGPoint(x: 0, y: -size.height / 2)
+            // Remove any existing subviews
+            annotationView?.subviews.forEach { $0.removeFromSuperview() }
+            
+            // Add the SwiftUI view
+            if let hostingView = hostingController.view {
+                annotationView?.addSubview(hostingView)
+                annotationView?.frame.size = targetSize
+                annotationView?.centerOffset = CGPoint(x: 0, y: -targetSize.height / 2)
+            }
             
             return annotationView
+        }
+        
+        func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+            if let polyline = overlay as? MKPolyline {
+                let renderer = MKPolylineRenderer(polyline: polyline)
+                renderer.strokeColor = .blue
+                renderer.lineWidth = 3
+                return renderer
+            }
+            return MKOverlayRenderer(overlay: overlay)
         }
     }
 }
 
-class MKPlayerAnnotation: NSObject, MKAnnotation {
-    @objc dynamic var coordinate: CLLocationCoordinate2D
-    var playerAnnotation: PlayerAnnotation
-    
-    init(playerAnnotation: PlayerAnnotation) {
-        self.playerAnnotation = playerAnnotation
-        self.coordinate = playerAnnotation.coordinate
-        super.init()
-    }
-}//
-//  MapViewRepresentable.swift
-//  TacticalMap
-//
-//  Created by Jaroslavs Krots on 09/06/2025.
-//
+// MARK: - Supporting Types
 
+// Enhanced Tactical Player Annotation View

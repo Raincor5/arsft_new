@@ -1,6 +1,8 @@
-
 // MARK: - ChatView.swift
 import SwiftUI
+import Foundation
+import Combine
+import CoreLocation
 
 struct ChatView: View {
     @EnvironmentObject var stateManager: StateManager
@@ -93,7 +95,10 @@ struct MessageRow: View {
     @EnvironmentObject var stateManager: StateManager
     
     var isOwnMessage: Bool {
-        message.senderId == stateManager.currentPlayer?.id
+        guard let currentUserId = stateManager.currentPlayer?.id else {
+            return false
+        }
+        return message.senderId == currentUserId
     }
     
     var senderName: String {
@@ -107,7 +112,7 @@ struct MessageRow: View {
         VStack(alignment: isOwnMessage ? .trailing : .leading, spacing: 4) {
             // Sender info
             HStack(spacing: 5) {
-                if message.type == .alert {
+                if MessageType(rawValue: message.type) == .alert {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(TacticalColors.warning)
                         .font(.caption)
@@ -117,7 +122,7 @@ struct MessageRow: View {
                     .font(TacticalFonts.caption)
                     .foregroundColor(isOwnMessage ? TacticalColors.primary : TacticalColors.secondary)
                 
-                Text("• \(message.sentAt, style: .time)")
+                Text("• \(Date(timeIntervalSince1970: message.sentAt), style: .time)")
                     .font(.caption2)
                     .foregroundColor(TacticalColors.secondary.opacity(0.7))
             }
