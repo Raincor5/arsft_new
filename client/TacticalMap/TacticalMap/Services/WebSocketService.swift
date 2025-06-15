@@ -92,6 +92,7 @@ class WebSocketService: NSObject, ObservableObject {
         }
     }
     
+    // Replace the sendRaw method:
     func sendRaw(_ data: Data) {
         guard let webSocket = webSocket else {
             print("Cannot send message: WebSocket is not initialized.")
@@ -102,8 +103,14 @@ class WebSocketService: NSObject, ObservableObject {
             return
         }
         
-        print("WebSocketService: Sending raw data: \(String(data: data, encoding: .utf8) ?? "Non-UTF8 data")")
-        let message = URLSessionWebSocketTask.Message.data(data)
+        // Convert Data to String for text message
+        guard let jsonString = String(data: data, encoding: .utf8) else {
+            print("Failed to convert data to string")
+            return
+        }
+        
+        print("WebSocketService: Sending text message: \(jsonString)")
+        let message = URLSessionWebSocketTask.Message.string(jsonString) // Changed from .data to .string
         webSocket.send(message) { error in
             if let error = error {
                 print("WebSocket send error: \(error)")

@@ -178,7 +178,7 @@ class StateManager: ObservableObject {
         print("StateManager: Handling AuthResponse")
         
         guard response.success else {
-            print("StateManager: Authentication failed: \(response.error ?? "Unknown error")")
+            print("StateManager: Authentication failed")
             return
         }
         
@@ -188,7 +188,11 @@ class StateManager: ObservableObject {
         
         // Set current player and team
         self.currentPlayer = session.players[response.playerId]
-        self.currentTeam = session.teams[response.teamId]
+        
+        // Handle optional teamId
+        if let teamId = response.teamId {
+            self.currentTeam = session.teams[teamId]
+        }
         
         // Update local state dictionaries
         self.players = session.players

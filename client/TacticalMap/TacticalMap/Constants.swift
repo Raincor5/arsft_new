@@ -4,13 +4,13 @@ import SwiftUI
 import CoreLocation
 
 struct TacticalColors {
-    static let primary = Color(red: 0, green: 1, blue: 0) // Bright green
+    static let primary = Color.green // Use system green instead of hex
     static let secondary = Color.gray
     static let background = Color.black
     static let surface = Color(white: 0.1)
     static let danger = Color.red
     static let warning = Color.orange
-    static let alphaTeam = Color(red: 0, green: 1, blue: 0)
+    static let alphaTeam = Color.green
     static let bravoTeam = Color.red
 }
 

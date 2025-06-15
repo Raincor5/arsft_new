@@ -44,7 +44,7 @@ struct Team: Codable, Identifiable {
     var players: [String]
 
     var swiftUIColor: Color {
-        Color(color)
+        Color(hex: color)
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -182,20 +182,26 @@ enum MessageType: String, Codable {
 // MARK: - Alert Types
 
 enum AlertType: String, Codable, CaseIterable {
-    case warning
+    case contact
     case danger
+    case rally
+    case help
     
     var displayName: String {
         switch self {
-        case .warning: return "Warning"
+        case .contact: return "Contact"
         case .danger: return "Danger"
+        case .rally: return "Rally"
+        case .help: return "Help"
         }
     }
     
     var icon: String {
         switch self {
-        case .warning: return "exclamationmark.triangle.fill"
+        case .contact: return "eye.fill"
         case .danger: return "exclamationmark.octagon.fill"
+        case .rally: return "flag.fill"
+        case .help: return "cross.circle.fill"
         }
     }
 }
@@ -244,18 +250,14 @@ struct StateDelta: Codable {
 
 struct AuthResponse: Codable {
     let success: Bool
-    let sessionId: String
     let playerId: String
     let teamId: String?
-    let token: String
     let sessionState: Session
     
     private enum CodingKeys: String, CodingKey {
         case success
-        case sessionId = "session_id"
         case playerId = "player_id"
         case teamId = "team_id"
-        case token
         case sessionState = "session_state"
     }
 }
@@ -322,4 +324,4 @@ struct AnyCodable: Codable {
             )
         }
     }
-} 
+}
